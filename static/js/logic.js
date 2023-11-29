@@ -129,12 +129,13 @@ function eqMarkers(response){
         });
     };
 
+    // Create the earthquake markers
     let eq_markers = L.geoJson(response,{
         pointToLayer : createMarker,
         onEachFeature : onEachFeature
         });
     
-    
+    // Call functions to create the map and legend
     createMap(eq_markers);
     createLegend();
 }
