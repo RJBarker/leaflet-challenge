@@ -1,22 +1,35 @@
 const url = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson";
 
-// Get the data
-d3.json(url).then((data) => {
-    console.log(data.length);
-});
-
 // Function to create the map
 function createMap(eq){
 
     // Create the satellite tile
     let sat = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {
+        minZoom:2,
         maxZoom: 12,
         attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
     });
 
+    // Create topo Tile
+    let openTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+        minZoom:2,
+        maxZoom: 12,
+        attribution: 'Map data: &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, <a href="http://viewfinderpanoramas.org">SRTM</a> | Map style: &copy; <a href="https://opentopomap.org">OpenTopoMap</a> (<a href="https://creativecommons.org/licenses/by-sa/3.0/">CC-BY-SA</a>)'
+    });
+
+    // Create Stadia_lite tile
+    var Stadia_StamenTonerLite = L.tileLayer('https://tiles.stadiamaps.com/tiles/stamen_toner_lite/{z}/{x}/{y}{r}.{ext}', {
+	minZoom: 2,
+	maxZoom: 12,
+	attribution: '&copy; <a href="https://www.stadiamaps.com/" target="_blank">Stadia Maps</a> &copy; <a href="https://www.stamen.com/" target="_blank">Stamen Design</a> &copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+	ext: 'png'
+});
+
     // baseMaps object
     let baseMaps = {
-        "Satellite" : sat
+        "Satellite" : sat,
+        "OpenTopo": openTopo,
+        "Stadia Lite": Stadia_StamenTonerLite
     };
 
     // Create an overlay object
@@ -26,15 +39,30 @@ function createMap(eq){
 
     // Create the map
     let myMap = L.map("map",{
-        center: [40.016602, -102.053112],
-        zoom:3,
+        center: [0, 0],
+        zoom:2,
         layers:[sat,eq]
     });
 
     // Create a layer control
-    L.control.layers(baseMaps, overlayMaps,{
+    var layerControl = L.control.layers(baseMaps, overlayMaps,{
         collapsed:false
     }).addTo(myMap);
+
+    // Create the Tectonic Plate geoJSON
+    d3.json("../static/geojson/PB2002_boundaries.json").then((geodata) => {
+
+    let plates = L.geoJson(geodata,{
+        style: {
+            color: "orange",            
+            fill: false
+        }
+    });
+
+    // Add the plates to the Overlay
+    layerControl.addOverlay(plates, "Tectonic Plates");
+
+    });
 
     // Create a legend control
     let legend = L.control({
@@ -105,7 +133,8 @@ function eqMarkers(response){
         pointToLayer : createMarker,
         onEachFeature : onEachFeature
         });
-
+    
+    
     createMap(eq_markers);
     createLegend();
 }
@@ -113,7 +142,7 @@ function eqMarkers(response){
 // Function to create legend
 function createLegend(){
     document.querySelector(".legend").innerHTML = [
-        "<h4>Legend</h4><hr/>",
+        "<h4>Depth Legend</h4><hr/>",
         "<div class='legoption'><div class='box' style='background-color:#a3f601;'></div> -10-10</div>",
         "<div class='legoption'><div class='box' style='background-color:#dcf400;'></div> 10-30</div>",
         "<div class='legoption'><div class='box' style='background-color:#f7db12;'></div> 30-50</div>",
