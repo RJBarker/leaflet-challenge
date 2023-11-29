@@ -42,13 +42,30 @@ function createMap(eq){
 
 // Function to create the earthquake markers
 function eqMarkers(response){
+
+    // Function to determine marker size
+    function circleSize(mag){
+        return mag*5;
+    }
+
+    // Function to bindpopup
+    function onEachFeature(feature, layer) {
+        layer.bindPopup(`<h4>${feature.properties.title}</h4><hr/><small><b>Mag:</b> ${feature.properties.mag}<br/><b>Circle Radius:</b> ${circleSize(feature.properties.mag)}</small>`)
+    };
+
+    // Function to create Circle
+    function createMarker(geoJsonPoint, latlng){
+        //console.log(geoJsonPoint);
+        return L.circleMarker(latlng, {
+            radius : circleSize(geoJsonPoint.properties.mag)
+        });
+    };
+
     let eq_markers = L.geoJson(response,{
-        pointToLayer: function (geoJsonPoint, latlng){
-            return L.circle(latlng);
-        }
-    }).bindPopup(function (layer) {
-        return layer.features.properties.mag;
-    });
+        pointToLayer : createMarker,
+        onEachFeature : onEachFeature
+        });
+
     createMap(eq_markers);
 }
 
