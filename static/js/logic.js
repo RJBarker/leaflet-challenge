@@ -28,7 +28,7 @@ function createMap(eq){
     let baseMaps = {
         "Satellite" : sat,
         "OpenTopo": openTopo,
-        "Stadia Lite": Stadia_StamenToner
+        "Stadia Toner": Stadia_StamenToner
     };
 
     // Create an overlay object
