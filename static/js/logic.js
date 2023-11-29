@@ -43,6 +43,21 @@ function createMap(eq){
 // Function to create the earthquake markers
 function eqMarkers(response){
 
+    // Function to determine marker color
+    function circleColor(depth){
+        if (depth < 10){
+            return "#a3f601"
+        } else if (depth < 30){
+            return "#dcf400"
+        } else if (depth < 50){
+            return "#f7db12"
+        } else if (depth < 70){
+            return "#fdb72a"
+        } else if (depth < 90){
+            return "#fca35d"
+        } else {return "#ff5f64"}
+    };
+
     // Function to determine marker size
     function circleSize(mag){
         return mag*5;
@@ -50,14 +65,24 @@ function eqMarkers(response){
 
     // Function to bindpopup
     function onEachFeature(feature, layer) {
-        layer.bindPopup(`<h4>${feature.properties.title}</h4><hr/><small><b>Mag:</b> ${feature.properties.mag}<br/><b>Circle Radius:</b> ${circleSize(feature.properties.mag)}</small>`)
-    };
+        layer.bindPopup(`<h4>EQ Details</h4><hr/>\
+        <small><b>Location:</b> ${feature.properties.place}<br/>\
+        <b>Lat:</b> ${feature.geometry.coordinates[1]}<br/>\
+        <b>Long:</b> ${feature.geometry.coordinates[0]}<br/>\
+        <b>Depth:</b> ${feature.geometry.coordinates[2]}<br/>\
+        <b>Magnitude:</b> ${feature.properties.mag}<br/>\
+        <a target="_blank" href=${feature.properties.url}>USGS Eventpage</a></small>`
+        )};
 
     // Function to create Circle
     function createMarker(geoJsonPoint, latlng){
         //console.log(geoJsonPoint);
         return L.circleMarker(latlng, {
-            radius : circleSize(geoJsonPoint.properties.mag)
+            radius : circleSize(geoJsonPoint.properties.mag),
+            weight: 1,
+            color: "gray",
+            fillColor: circleColor(geoJsonPoint.geometry.coordinates[2]),
+            fillOpacity: 0.9
         });
     };
 
