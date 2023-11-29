@@ -10,7 +10,7 @@ function createMap(eq){
 
     // Create the satellite tile
     let sat = L.tileLayer('https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 20,
+        maxZoom: 12,
         attribution: 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>'
     });
 
@@ -35,6 +35,20 @@ function createMap(eq){
     L.control.layers(baseMaps, overlayMaps,{
         collapsed:false
     }).addTo(myMap);
+
+    // Create a legend control
+    let legend = L.control({
+        position:"bottomright"
+    });
+
+    // Add a div class to legend control
+    legend.onAdd = function(){
+        let div = L.DomUtil.create("div", "legend");
+        return div;
+    };
+
+    // Add legend control to map
+    legend.addTo(myMap);
 
 }
 
@@ -65,8 +79,9 @@ function eqMarkers(response){
 
     // Function to bindpopup
     function onEachFeature(feature, layer) {
-        layer.bindPopup(`<h4>EQ Details</h4><hr/>\
-        <small><b>Location:</b> ${feature.properties.place}<br/>\
+        layer.bindPopup(`<h4>Earthquake Details</h4><hr/>\
+        <small><b>Date/Time:</b> ${new Date(feature.properties.time).toUTCString()}<br/>\
+        <b>Location:</b> ${feature.properties.place}<br/>\
         <b>Lat:</b> ${feature.geometry.coordinates[1]}<br/>\
         <b>Long:</b> ${feature.geometry.coordinates[0]}<br/>\
         <b>Depth:</b> ${feature.geometry.coordinates[2]}<br/>\
@@ -92,8 +107,20 @@ function eqMarkers(response){
         });
 
     createMap(eq_markers);
+    createLegend();
 }
 
-
+// Function to create legend
+function createLegend(){
+    document.querySelector(".legend").innerHTML = [
+        "<h4>Legend</h4><hr/>",
+        "<div class='legoption'><div class='box' style='background-color:#a3f601;'></div> -10-10</div>",
+        "<div class='legoption'><div class='box' style='background-color:#dcf400;'></div> 10-30</div>",
+        "<div class='legoption'><div class='box' style='background-color:#f7db12;'></div> 30-50</div>",
+        "<div class='legoption'><div class='box' style='background-color:#fdb72a;'></div> 50-70</div>",
+        "<div class='legoption'><div class='box' style='background-color:#fca35d;'></div> 70-90</div>",
+        "<div class='legoption'><div class='box' style='background-color:#ff5f64;'></div> 90+</div>",
+    ].join("");
+}
 
 d3.json(url).then(eqMarkers);
