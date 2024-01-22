@@ -49,7 +49,7 @@ function createMap(eq){
     }).addTo(myMap);
 
     // Create the Tectonic Plate geoJSON
-    d3.json("https://github.com/fraxen/tectonicplates/blob/master/GeoJSON/PB2002_plates.json").then((geodata) => {
+    d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json").then((geodata) => {
 
     let plates = L.geoJson(geodata,{
         style: {
